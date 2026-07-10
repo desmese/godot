@@ -442,12 +442,10 @@ bool TextEditorBase::_edit_option(int p_op) {
 			trim_final_newlines();
 		} break;
 		case EDIT_CONVERT_INDENT_TO_SPACES: {
-			code_editor->set_indent_using_spaces(true);
-			convert_indent();
+			code_editor->convert_indentation(true);
 		} break;
 		case EDIT_CONVERT_INDENT_TO_TABS: {
-			code_editor->set_indent_using_spaces(false);
-			convert_indent();
+			code_editor->convert_indentation(false);
 		} break;
 		case EDIT_TO_UPPERCASE: {
 			_convert_case(CodeTextEditor::UPPER);

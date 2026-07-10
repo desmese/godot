@@ -1319,7 +1319,12 @@ void CodeTextEditor::convert_case(CaseStyle p_case) {
 
 void CodeTextEditor::set_indent_using_spaces(bool p_use_spaces) {
 	text_editor->set_indent_using_spaces(p_use_spaces);
-	indentation_txt->set_text(p_use_spaces ? TTR("Spaces", "Indentation") : TTR("Tabs", "Indentation"));
+	indentation_button->set_text(p_use_spaces ? TTR("Spaces", "Indentation") : TTR("Tabs", "Indentation"));
+}
+
+void CodeTextEditor::convert_indentation(bool p_use_spaces) {
+	this->set_indent_using_spaces(p_use_spaces);
+	this->get_text_editor()->convert_indent();
 }
 
 void CodeTextEditor::toggle_inline_comment(const String &delimiter) {
@@ -1742,6 +1747,10 @@ void CodeTextEditor::_zoom_popup_id_pressed(int p_idx) {
 	_zoom_to(zoom_button->get_popup()->get_item_metadata(p_idx));
 }
 
+void CodeTextEditor::_indentation_button_pressed(bool p_indent_using_spaces) {
+	this->convert_indentation(p_indent_using_spaces);
+}
+
 void CodeTextEditor::_set_show_errors_panel(bool p_show) {
 	is_errors_panel_opened = p_show;
 	emit_signal(SNAME("show_errors_panel"), p_show);
@@ -2091,15 +2100,24 @@ CodeTextEditor::CodeTextEditor() {
 	status_bar->add_child(memnew(VSeparator));
 
 	// Indentation
-	indentation_txt = memnew(Label);
-	status_bar->add_child(indentation_txt);
-	indentation_txt->set_v_size_flags(SIZE_EXPAND | SIZE_SHRINK_CENTER);
-	indentation_txt->set_auto_translate_mode(AUTO_TRANSLATE_MODE_DISABLED);
-	indentation_txt->set_tooltip_auto_translate_mode(AUTO_TRANSLATE_MODE_ALWAYS);
-	indentation_txt->set_tooltip_text(TTRC("Indentation"));
-	indentation_txt->set_accessibility_name(TTRC("Indentation"));
-	indentation_txt->set_focus_mode(FOCUS_ACCESSIBILITY);
-	indentation_txt->set_mouse_filter(MOUSE_FILTER_STOP);
+	indentation_button = memnew(MenuButton);
+	status_bar->add_child(indentation_button);
+	indentation_button->set_flat(false);
+	indentation_button->set_theme_type_variation("FlatMenuButton");
+	indentation_button->set_v_size_flags(SIZE_EXPAND | SIZE_SHRINK_CENTER);
+	indentation_button->set_text(TTRC("Tabs"));
+	indentation_button->set_tooltip_text(
+				TTR("Indentation") + "\n" +
+				vformat(TTR("Convert Indent to Spaces: %s\nConvert Indent to Tabs: %s", "%s will be replaced by the relevant shortcuts"),  ED_GET_SHORTCUT("script_text_editor/convert_indent_to_spaces")->get_as_text(), ED_GET_SHORTCUT("script_text_editor/convert_indent_to_tabs")->get_as_text()));
+	indentation_button->set_accessibility_name(TTRC("Indentation"));
+
+	PopupMenu *indentation_menu = indentation_button->get_popup();
+	indentation_menu->add_item(TTR("Tabs", "Indentation"));
+	indentation_menu->set_item_metadata(0, false);
+	indentation_menu->add_item(TTR("Spaces", "Indentation"));
+	indentation_menu->set_item_metadata(1, true);
+
+	indentation_menu->connect(SceneStringName(id_pressed), callable_mp(this, &CodeTextEditor::_indentation_button_pressed));
 
 	text_editor->connect(SceneStringName(gui_input), callable_mp(this, &CodeTextEditor::_text_editor_gui_input));
 	text_editor->connect("caret_changed", callable_mp(this, &CodeTextEditor::_line_col_changed));

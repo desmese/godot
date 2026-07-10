@@ -171,7 +171,7 @@ class CodeTextEditor : public VBoxContainer {
 
 	MenuButton *zoom_button = nullptr;
 	Button *line_and_col_button = nullptr;
-	Label *indentation_txt = nullptr;
+	MenuButton *indentation_button = nullptr;
 
 	Timer *idle = nullptr;
 	float idle_time = 0.0f;
@@ -222,6 +222,7 @@ class CodeTextEditor : public VBoxContainer {
 	void _error_pressed(const Ref<InputEvent> &p_event);
 
 	void _zoom_popup_id_pressed(int p_idx);
+	void _indentation_button_pressed(bool p_indent_using_spaces);
 
 	void _toggle_files_pressed();
 
@@ -253,6 +254,7 @@ public:
 	void convert_case(CaseStyle p_case);
 
 	void set_indent_using_spaces(bool p_use_spaces);
+	void convert_indentation(bool p_use_spaces);
 
 	/// Toggle inline comment on currently selected lines, or on current line if nothing is selected,
 	/// by adding or removing comment delimiter
